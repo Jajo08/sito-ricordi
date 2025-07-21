@@ -1,1 +1,1 @@
-[Visita il sito](https://github.com/Panterw/sito-ricordi.git)
+[Visita il sito](http://panterw.github.io/sito-ricordi/)

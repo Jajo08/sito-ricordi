@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>I tuoi Ricordi</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .overlay {
+      background-color: rgba(253, 246, 240, 0.85);
+      min-height: 100vh;
+      padding: 40px 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4a2c0a;
+      font-size: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .ricordo {
+      background: white;
+      border: 2px solid #000;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 20px auto;
+      max-width: 600px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .ricordo img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .ricordo h3 {
+      margin-top: 0;
+    }
+
+    .autore {
+      font-weight: bold;
+      color: #4a2c0a;
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+
+    .elimina {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #c0392b;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .elimina:hover {
+      background: #a93226;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 40px;
+    }
+
+    .buttons a {
+      text-decoration: none;
+      padding: 10px 15px;
+      background-color: #b45f06;
+      color: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(180, 95, 6, 0.6);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .buttons a:hover {
+      background-color: #9c4d05;
+      box-shadow: 0 8px 16px rgba(156, 77, 5, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>I tuoi Ricordi</h1>
+    <div id="lista-ricordi"></div>
+
+    <div class="buttons">
+      <a href="index.html">🏠 Home</a>
+      <a href="aggiungi.html">➕ Aggiungi Ricordo</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyACMPacPca71SkbPIK4EG7YGk1uPIuAS2s",
+      authDomain: "ricordi-sito.firebaseapp.com",
+      projectId: "ricordi-sito",
+      storageBucket: "ricordi-sito.appspot.com",
+      messagingSenderId: "708953509181",
+      appId: "1:708953509181:web:ac1dd89cb4a8d258978954",
+      measurementId: "G-XGN936XN0E"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const listaContainer = document.getElementById("lista-ricordi");
+
+    async function caricaRicordi() {
+      const q = query(collection(db, "ricordi"), orderBy("timestamp", "desc"));
+      const querySnapshot = await getDocs(q);
+
+      listaContainer.innerHTML = "";
+
+      querySnapshot.forEach((docSnap) => {
+        const dati = docSnap.data();
+        const id = docSnap.id;
+
+        const ricordoDiv = document.createElement("div");
+        ricordoDiv.className = "ricordo";
+
+        ricordoDiv.innerHTML = `
+          <button class="elimina" data-id="${id}" data-url="${dati.immagineUrl || ''}">🗑 Elimina</button>
+          <div class="autore">Di: ${dati.autore || "Sconosciuto"}</div>
+          <h3>${dati.titolo}</h3>
+          <p><strong>Data:</strong> ${dati.data}</p>
+          <p>${dati.descrizione}</p>
+          ${dati.immagineUrl ? `<img src="${dati.immagineUrl}" alt="Ricordo">` : ""}
+        `;
+
+        listaContainer.appendChild(ricordoDiv);
+      });
+
+      // Event listener elimina
+      document.querySelectorAll(".elimina").forEach(button => {
+        button.addEventListener("click", async (e) => {
+          const id = e.target.dataset.id;
+          const url = e.target.dataset.url;
+
+          if (confirm("Vuoi davvero eliminare questo ricordo?")) {
+            await deleteDoc(doc(db, "ricordi", id));
+
+            if (url) {
+              try {
+                const imageRef = ref(storage, url);
+                await deleteObject(imageRef);
+              } catch (err) {
+                console.warn("Immagine non trovata o già eliminata:", err);
+              }
+            }
+
+            location.reload();
+          }
+        });
+      });
+    }
+
+    caricaRicordi();
+  </script>
+</body>
+</html>

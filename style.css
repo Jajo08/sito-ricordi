@@ -1,0 +1,83 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: #fdf6f0;
+  color: #333;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  color: #b45f06;
+  margin-bottom: 30px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+input, textarea {
+  width: 50%;      /* larghezza ridotta */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+button, .button {
+  background-color: #b45f06;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 10px;
+  text-decoration: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.button-container {
+  margin-top: 20px;
+}
+
+#listaRicordi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ricordo {
+  background-color: #fff3e0;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 10px;
+  width: 50%;    /* larghezza ridotta */
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.ricordo h2 {
+  margin: 0 0 5px 0;
+}
+
+.ricordo button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #d32f2f;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.ricordo img {
+  max-width: 100%;
+  margin-top: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}

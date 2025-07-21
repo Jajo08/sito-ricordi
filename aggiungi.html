@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aggiungi Ricordo</title>
+  <style>
+    body {
+      background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: #4a2c0a;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .overlay {
+      background-color: rgba(253, 246, 240, 0.85);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      text-shadow: 1px 1px 3px #a9742a;
+    }
+    form {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+    input[type="text"],
+    input[type="date"],
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 1rem;
+      border: 2px solid #000;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .form-button-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    .form-button-container button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .form-button-container button:hover {
+      background-color: #0056b3;
+    }
+    .bottom-links {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: auto;
+    }
+    .bottom-links a {
+      text-decoration: none;
+      padding: 10px 15px;
+      background-color: #b45f06;
+      color: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(180, 95, 6, 0.6);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .bottom-links a:hover {
+      background-color: #9c4d05;
+      box-shadow: 0 8px 16px rgba(156, 77, 5, 0.9);
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>Aggiungi un Ricordo</h1>
+    <form id="ricordoForm">
+      <input type="text" id="titolo" placeholder="Titolo del ricordo" required><br>
+      <textarea id="descrizione" placeholder="Scrivi la descrizione..." required></textarea><br>
+      <input type="date" id="data" required><br>
+      <input type="file" id="immagine" accept="image/*"><br> <!-- NON OBBLIGATORIO -->
+      <div class="form-button-container">
+        <button type="submit">Salva Ricordo</button>
+      </div>
+    </form>
+    <div class="bottom-links">
+      <a href="index.html">🏠 Home</a>
+      <a href="ricordi.html">📜 I tuoi Ricordi</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyACMPacPca71SkbPIK4EG7YGk1uPIuAS2s",
+      authDomain: "ricordi-sito.firebaseapp.com",
+      projectId: "ricordi-sito",
+      storageBucket: "ricordi-sito.appspot.com",
+      messagingSenderId: "708953509181",
+      appId: "1:708953509181:web:ac1dd89cb4a8d258978954",
+      measurementId: "G-XGN936XN0E"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    document.getElementById('ricordoForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const titolo = document.getElementById('titolo').value;
+      const descrizione = document.getElementById('descrizione').value;
+      const data = document.getElementById('data').value;
+      const file = document.getElementById('immagine').files[0];
+
+      try {
+        let imageUrl = "";
+        if (file) {
+          const storageRef = ref(storage, `immagini/${Date.now()}_${file.name}`);
+          await uploadBytes(storageRef, file);
+          imageUrl = await getDownloadURL(storageRef);
+        }
+
+        await addDoc(collection(db, "ricordi"), {
+          titolo,
+          descrizione,
+          data,
+          immagineUrl: imageUrl,
+          timestamp: new Date()
+        });
+
+        alert("Ricordo salvato con successo!");
+        document.getElementById("ricordoForm").reset();
+      } catch (error) {
+        console.error("Errore:", error);
+        alert("Errore durante il salvataggio.");
+      }
+    });
+  </script>
+</body>
+</html>
